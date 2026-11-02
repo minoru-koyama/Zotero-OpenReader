@@ -313,3 +313,24 @@ value notifies no observer.
   document worker: `resource/document-worker/worker.js`.
 - Discover a Kokoro server through the plugin's `local.baseURL` pref,
   rather than assuming an address.
+
+## §11 The bridge from a host without MCP tools
+
+When the harness exposes no `mcp__zotero-dev__*` tools at all, the same
+MCP server can be spoken to over stdio by hand: `test/zotero-dev/mcp/`
+holds a two-call client (`call.mjs` for one tool, `exec.mjs` for a script
+file) and its README carries the setup, the isolated profile's launch
+command as a supervised service, and the port that profile pins
+(`extensions.mcp-rdp.port` = 6101, against a daily profile's 6100).
+Verified 2026-11-02 with the Deepgram case, all eight items PASS.
+
+What that run cost, in limits worth carrying: 30 s per bridge call (a
+longer poll answers a bare `undefined` with nothing logged); a bare
+`undefined` otherwise means a throw, so read `zotero_read_errors` before
+suspecting the build or a wrong host-API signature; closing a tab or the
+Settings window inside a script can kill that call, so close and verify in
+separate phases; a preference cleared on its own can be rewritten by the
+plugin's observers (write the baseline value, wait, then clear the flag,
+and read back what stuck); and a script-started reading meets the autoplay
+gate, so playback starts on a trusted `Shift+Space` with the reader's tab
+selected.
