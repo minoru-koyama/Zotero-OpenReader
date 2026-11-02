@@ -28,9 +28,12 @@ position records. Nothing else.
    `Zotero.ZoteroTTS.diagnostics.secrets()` reports the Deepgram entry as
    flags and lengths only.
 2. **Enable with the owner's key: one paid probe.** Enter the key, press
-   Enable. The line reads `Connected. N voices available. Synthesis
-   works.` and `deepgram.enabled` becomes true; the key field turns
-   `disabled` and is masked again (the reveal button is greyed). `N` is
+   Test connection, then Enable. The line reads `Connected. N voices
+   available. Synthesis works.` and `deepgram.enabled` becomes true; a Test
+   connection on its own leaves the provider off and the line unchanged,
+   so Enable is read from the switch and the field, not from the line. The
+   key field turns `disabled` and is masked again (the reveal button is
+   greyed). `N` is
    the count the public list yields today — compare it with a fresh
    unauthenticated `GET https://api.deepgram.com/v1/models` filtered to
    `architecture === "aura-2"` and
@@ -61,15 +64,25 @@ position records. Nothing else.
    `Playback failed` and no decoder error. The debug log carries
    `deepgram: no word timestamps for N chars (audio from aura-2-…-en),
    highlighting the sentence`; replaying the same text on the same voice
-   with the audio cache on adds `(cached)`. No input text or key appears
-   in the adapter's lines.
+   with the audio cache on adds `(cached)` — but that suffix belongs to
+   the memory cache behind `remote-interface`, and a replay of a sentence
+   still in the Engine's clip store never reaches it: the replay then
+   writes **no line at all** and resumes in under a second (observed
+   2026-11-02: 11 lines before the replay, 11 after). Expect `(cached)`
+   only once the clip has left the store. A script-started session meets
+   the autoplay gate, so playback starts on a trusted `Shift+Space` with
+   the reader's tab selected. No input text or key appears in the
+   adapter's lines.
 7. **Word mode shows the sentence.** Turn word highlighting on for one
    sentence: the sentence is visible and does not advance word by word.
    Capture the reader surface and `diagnostics.highlight()`; the audio
    clock alone does not prove the highlight. Whether the voice sounds
    right is a human judgment and is reported separately.
 8. **Restore, and leave nothing behind.** Put the prefetch settings,
-   highlight level and volume back **including their user-value flags**,
+   highlight level, volume and the default voice back **including their
+   user-value flags** (write the baseline value first, then clear the
+   flag: a clear on its own was re-written by the plugin's observers), and
+   put `deepgram.enabled` back to `false`;
    and confirm the WebDAV folder's switch is back where the baseline found
    it (`diagnostics.positionSync()` reports the original `folder`). The
    owner's key stays in the section as part of the baseline. Delete the
