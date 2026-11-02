@@ -827,6 +827,15 @@ then) and is in the git history before that day.
 - A one-letter word gets a point CFI in an EPUB, so its word position shows no text (issue #209)
 - Zotero's EPUB resolver gives a point no end, and the snapshot view appends two `<div>`s after the page's last block (issues #235, #236)
 - Zotero 10.0.7 calls clearFailures before Play, and the Engine controller lacked it
+- Opening Settings after beta7 froze Zotero, and removal restored normal use
+- The isolated Settings checks passed, and a reader probe met native first-run consent
+- An upgrade from beta6's failed Play still did not reproduce the Settings freeze
+- Cold startup and Settings during Kokoro reading also stayed responsive in isolation
+- Both local models rendered audio on the authorized real PDF without reproducing the freeze
+- A fresh installation after the companion plugins also left Settings responsive
+- Disabled provider switches do not unload the external model servers
+- Normal startup recovered after our retained read-only SQLite inspection was closed
+- Qwen was uninstalled while Kokoro and its saved voice choices were preserved
 - English Aura-2 built as its own provider, deterministic checks green
 
 ### [2026-11-02](NOTES_2026-11-02.md)
