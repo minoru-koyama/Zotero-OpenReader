@@ -409,6 +409,16 @@ export class EngineSession<Clip extends EngineClip = EngineClip> {
     this.speak();
   }
 
+  /** Zotero 10.0.7 clears failures before Play, without starting playback (reader.js 40287-40293). */
+  clearFailures(): void {
+    if (this.ended) return;
+    this.failed.clear();
+    if (this.error !== null) {
+      this.error = null;
+      this.deps.emit('ErrorCleared', this.currentSegment);
+    }
+  }
+
   /** The word timings of a segment's clip, if it has any (reader.js 40381-40385). */
   getTimestampsForSegment(segment: unknown): ArrayLike<WordTiming> | null {
     const index = this.indexOf(segment);

@@ -368,6 +368,8 @@ describe('the Engine behind Zotero 10.0.3’s manager', () => {
     await t.clock.advance(200);
     t.manager.pause();
     expect(t.sources()[0].stoppedAt).not.toBe(null);
+    // Zotero 10.0.7's manager clears failures before unpausing its controller.
+    t.manager._controller.clearFailures();
     t.manager.play();
     await t.clock.advance(0);
     expect(t.sources().at(-1)!.offset).toBeCloseTo(0.2, 9);
@@ -389,6 +391,38 @@ describe('the Engine behind Zotero 10.0.3’s manager', () => {
     expect(t.manager.error).toBe(null);
     await t.clock.advance(0);
     expect(t.sources()).toHaveLength(1);
+  });
+
+  it('clears a failed sentence without starting audio, then Play fetches it again', async () => {
+    let fail = true;
+    const t = await setup({ fail: () => (fail ? 'network' : null) });
+    t.engine.attach(t.reader);
+    t.open(0);
+    await t.clock.advance(0);
+    expect(t.manager.error).toBe('network');
+    const controller = t.manager._controller;
+    const cleared = vi.fn();
+    controller.addEventListener('ErrorCleared', cleared);
+    fail = false;
+    const requests = t.source.getAudio.mock.calls.length;
+
+    // The new manager contract clears failures separately from resuming.
+    controller.clearFailures();
+    controller.clearFailures();
+    await t.clock.advance(0);
+    expect(t.manager.error).toBe(null);
+    expect(t.manager.paused).toBe(true);
+    expect(cleared).toHaveBeenCalledOnce();
+    expect(t.source.getAudio.mock.calls.length).toBe(requests);
+    expect(t.sources()).toEqual([]);
+
+    t.manager.play();
+    await t.clock.advance(0);
+    expect(t.source.getAudio.mock.calls.filter(([segment]) => segment === t.segments[0])).toHaveLength(2);
+    expect(t.sources().map((source) => source.offset)).toEqual([0]);
+    expect(t.manager.activeSegment).toBe(t.segments[0]);
+    expect(t.manager.paused).toBe(false);
+    t.engine.dispose();
   });
 
   it('asks Zotero for credits for a Zotero voice only, as Read Aloud’s controller does', async () => {

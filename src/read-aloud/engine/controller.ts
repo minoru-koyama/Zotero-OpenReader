@@ -115,6 +115,9 @@ export function createEngineController(binding: ControllerBinding, deps: Control
   method('retry', () => {
     if (live) session.retry();
   });
+  method('clearFailures', () => {
+    if (live) session.clearFailures();
+  });
   method('getTimestampsForSegment', (segment: unknown) => session.getTimestampsForSegment(segment ? deps.waiveXrays(segment) : segment) ?? null);
   method('getSegmentToAnnotate', () => session.getSegmentToAnnotate() ?? null);
   method('syncActiveWordToPlayback', () => {
