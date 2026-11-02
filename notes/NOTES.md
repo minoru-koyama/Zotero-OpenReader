@@ -836,6 +836,7 @@ then) and is in the git history before that day.
 - Disabled provider switches do not unload the external model servers
 - Normal startup recovered after our retained read-only SQLite inspection was closed
 - Qwen was uninstalled while Kokoro and its saved voice choices were preserved
+- Deepgram TTS fits the provider seam; Flux discovery needs separate verification
 - English Aura-2 built as its own provider, deterministic checks green
 
 ### [2026-11-02](NOTES_2026-11-02.md)
