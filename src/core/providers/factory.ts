@@ -2,6 +2,7 @@ import type { Settings } from '../settings';
 import { createAzureProvider } from './azure';
 import { createCloudflareProvider } from './cloudflare';
 import { createSpeechifyProvider } from './speechify';
+import { createDeepgramProvider } from './deepgram';
 import { createFishProvider, FishVoiceCache, loadFishModelList, type FishModelList, type FishVoiceCacheStats } from './fish';
 import { createFishSpeechProvider } from './fishspeech';
 import { SynthesisError } from './errors';
@@ -75,6 +76,9 @@ export function createProvider(id: ProviderId, settings: Settings, deps: Provide
 
     case 'speechify':
       return createSpeechifyProvider(settings.speechify, { fetch: deps.fetch });
+
+    case 'deepgram':
+      return createDeepgramProvider(settings.deepgram, { fetch: deps.fetch, newAbortController: deps.newAbortController });
 
     case 'fish':
       return createFishProvider(settings.fish, { fetch: deps.fetch, cache: fishCache(deps.fetch), newAbortController: deps.newAbortController });

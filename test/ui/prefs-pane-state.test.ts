@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULTS, PREF_PREFIX, SWITCH_IDS, type PrefsBackend, type ZoteroTier } from '../../src/core/settings';
+import { DEFAULTS, PREF_PREFIX, SWITCH_IDS, type PrefsBackend, type SwitchId, type ZoteroTier } from '../../src/core/settings';
 import { flattenSettings } from '../../src/core/settings-backup';
 import { createZoteroRefusals } from '../../src/read-aloud/zotero-refusals';
 import { onPaneLoad } from '../../src/ui/prefs-pane';
@@ -84,9 +84,21 @@ function pane(initial: Record<string, unknown> = {}) {
   const finish = deferred();
   let holdSynthesis = false;
   const reached: string[] = [];
+  // Deepgram answers on its own host with its own schema: the same /v1/models
+  // path as OpenAI, and a synthesis whose reply can be made to fail
+  let deepgramSpeak: () => Response = () => new Response(new Uint8Array([0x49, 0x44, 0x33, 4, 0, 0, 0, 0, 0, 0]), { headers: { 'content-type': 'audio/mpeg' } });
+  const deepgramModels = () => [
+    { architecture: 'aura-2', canonical_name: 'aura-2-thalia-en', name: 'Thalia', languages: ['en', 'en-US'], metadata: { tags: ['feminine'] } },
+  ];
   const fetch = vi.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
     reached.push(url);
+    if (url.startsWith('https://api.deepgram.com/v1/models')) return Response.json({ tts: deepgramModels() });
+    if (url.startsWith('https://api.deepgram.com/v1/speak')) {
+      started.resolve();
+      if (holdSynthesis) await finish.promise;
+      return deepgramSpeak();
+    }
     if (url.endsWith('/v1/audio/speech')) {
       started.resolve();
       if (holdSynthesis) await finish.promise;
@@ -97,11 +109,15 @@ function pane(initial: Record<string, unknown> = {}) {
   });
   vi.stubGlobal('fetch', fetch);
   const elements = new Map<string, Element>();
-  for (const id of ['compatible', 'fish', 'zotero-standard', 'zotero-premium'] as const) {
+  for (const id of ['compatible', 'fish', 'deepgram', 'zotero-standard', 'zotero-premium'] as const) {
     for (const key of Object.values(providerRowIds(id))) elements.set(key, new Element());
   }
   const baseURL = new Element();
   elements.get(providerRowIds('compatible').section)!.fields = [baseURL];
+  // The Deepgram key, marked as a secret the way the markup marks it
+  const deepgramKey = new Element();
+  deepgramKey.setAttribute('class', 'ztts-secret');
+  elements.get(providerRowIds('deepgram').section)!.fields = [deepgramKey];
   for (const id of [...Object.values(FISH_SOURCE_IDS), FISH_MODEL_MENU_ID]) elements.set(id, new Element());
   elements.get(providerRowIds('fish').section)!.fields = [FISH_SOURCE_IDS.official, FISH_SOURCE_IDS.own, FISH_SOURCE_IDS.manual, FISH_SOURCE_IDS.modelIds, FISH_MODEL_MENU_ID].map(id => elements.get(id)!);
   const win = new Element();
@@ -113,19 +129,21 @@ function pane(initial: Record<string, unknown> = {}) {
   } as unknown as Document;
   onPaneLoad(doc);
   cleanups.push(() => win.fire('unload'));
-  const row = (id: 'compatible' | 'fish' | 'zotero-standard' | 'zotero-premium') => {
+  const row = (id: SwitchId) => {
     const ids = providerRowIds(id);
     return { toggle: elements.get(ids.toggle)!, test: elements.get(ids.test)!, result: elements.get(ids.result)! };
   };
   return {
-    prefs, store, observers, errors, win, row, baseURL, elements, reached,
+    prefs, store, observers, errors, win, row, baseURL, elements, reached, deepgramKey,
     hold: () => { holdSynthesis = true; }, started: started.promise, finish: finish.resolve,
+    deepgramReply: (reply: () => Response) => { deepgramSpeak = reply; },
     accountChanged: () => { for (const observer of accountObservers.values()) observer.notify(); },
     typeURL: (value: string) => { if (!baseURL.disabled) prefs.set(PREF_PREFIX + 'compatible.baseURL', value); },
   };
 }
 
 const URL_PREF = PREF_PREFIX + 'compatible.baseURL';
+const DEEPGRAM_ENABLED = PREF_PREFIX + 'deepgram.enabled';
 const ENABLED_PREF = PREF_PREFIX + 'compatible.enabled';
 const compatible = { 'compatible.baseURL': 'https://good.example', 'compatible.voices': 'alloy' };
 
@@ -235,5 +253,36 @@ describe('Fish source restrictions across pane refreshes (#216)', () => {
     else await p.row('fish')[action === 'test' ? 'test' : 'toggle'].fire();
     expect(ids.disabled).toBe(true);
     expect(p.prefs.get(PREF_PREFIX + 'fish.voices')).toBe('saved-reference');
+  });
+});
+
+// Deepgram's public voice list needs no key, so Enable is only
+// sound when the synthesis probe behind it succeeds on the voice it listed
+describe('Deepgram in the real pane', () => {
+  it('keeps Enable off when the public list answers but the key is rejected', async () => {
+    const p = pane({ 'deepgram.apiKey': 'dg-fake' });
+    p.deepgramReply(() => new Response('', { status: 401 }));
+    await p.row('deepgram').toggle.fire();
+    expect(p.reached).toContain('https://api.deepgram.com/v1/models');
+    expect(p.reached.some((url) => url.startsWith('https://api.deepgram.com/v1/speak'))).toBe(true);
+    expect(p.store.get(DEEPGRAM_ENABLED)).toBe(false);
+    expect(p.row('deepgram').result.textContent).toMatch(/key/i);
+    expect(p.deepgramKey.disabled).toBe(false);
+  });
+
+  it('enables with a nonempty MP3 answer and locks the key', async () => {
+    const p = pane({ 'deepgram.apiKey': 'dg-fake' });
+    p.deepgramReply(() => new Response(new Uint8Array([0x49, 0x44, 0x33, 4, 0, 0, 0, 0, 0, 0]), { headers: { 'content-type': 'audio/mpeg' } }));
+    await p.row('deepgram').toggle.fire();
+    expect(p.store.get(DEEPGRAM_ENABLED)).toBe(true);
+    expect(p.row('deepgram').toggle.getAttribute('label')).toBe('Disable');
+    expect(p.deepgramKey.disabled).toBe(true);
+  });
+
+  it('leaves a disabled provider off after a successful Test connection', async () => {
+    const p = pane({ 'deepgram.apiKey': 'dg-fake' });
+    await p.row('deepgram').test.fire();
+    expect(p.store.get(DEEPGRAM_ENABLED)).toBe(false);
+    expect(p.row('deepgram').result.textContent).toMatch(/connected|synthesis/i);
   });
 });

@@ -826,3 +826,4 @@ then) and is in the git history before that day.
 
 - A one-letter word gets a point CFI in an EPUB, so its word position shows no text (issue #209)
 - Zotero's EPUB resolver gives a point no end, and the snapshot view appends two `<div>`s after the page's last block (issues #235, #236)
+- English Aura-2 built as its own provider, deterministic checks green

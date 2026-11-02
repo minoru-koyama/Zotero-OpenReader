@@ -177,23 +177,18 @@ describe('hiddenZoteroTiers', () => {
 });
 
 describe('enabledProviders', () => {
-  it('lists the switched-on providers in catalog order', () => {
+  // The flags decide what is published, and in catalog order: the registry
+  // itself is the code's, not a list copied into the test
+  it('lists the switched-on providers in catalog order, and none by default', () => {
     expect(enabledProviders(DEFAULTS)).toEqual([]);
-    const all = {
+    const two = {
       ...DEFAULTS,
-      'openai-official': { ...DEFAULTS['openai-official'], enabled: true },
-      mimo: { ...DEFAULTS.mimo, enabled: true },
-      compatible: { ...DEFAULTS.compatible, enabled: true },
-      azure: { ...DEFAULTS.azure, enabled: true },
-      cloudflare: { ...DEFAULTS.cloudflare, enabled: true },
       speechify: { ...DEFAULTS.speechify, enabled: true },
-      fish: { ...DEFAULTS.fish, enabled: true },
-      fishspeech: { ...DEFAULTS.fishspeech, enabled: true },
-      local: { ...DEFAULTS.local, enabled: true },
-      system: { ...DEFAULTS.system, enabled: true },
+      deepgram: { ...DEFAULTS.deepgram, enabled: true },
     };
-    expect(enabledProviders(all)).toEqual(PROVIDER_IDS);
-    expect(enabledProviders({ ...all, 'openai-official': { ...DEFAULTS['openai-official'], enabled: false } })).toEqual(['mimo', 'compatible', 'azure', 'cloudflare', 'speechify', 'fish', 'fishspeech', 'local', 'system']);
+    expect(enabledProviders(two)).toEqual(['speechify', 'deepgram']);
+    expect(enabledProviders({ ...two, speechify: { ...DEFAULTS.speechify, enabled: false } })).toEqual(['deepgram']);
+    expect(enabledProviders({ ...two, deepgram: { ...DEFAULTS.deepgram, enabled: false } })).toEqual(['speechify']);
   });
 });
 

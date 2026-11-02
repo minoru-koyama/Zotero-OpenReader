@@ -259,6 +259,24 @@
     </hbox>
   </groupbox>
 
+  <!-- Deepgram: one key from the console's API keys page. No
+       address and no model: the voice id is the model, and every English
+       Aura-2 voice the service lists is offered. The key is masked like the
+       others. -->
+  <groupbox id="ztts-provider-deepgram">
+    <label><html:h2>Deepgram (Aura-2) (<label is="zotero-text-link" href="https://console.deepgram.com/">console.deepgram.com</label>)</html:h2></label>
+    <hbox align="center">
+      <label data-l10n-id="ztts-field-api-key" class="ztts-field-label"/>
+      <html:input type="text" class="ztts-secret" preference="extensions.zotero.zotero-tts.deepgram.apiKey"/>
+      <label class="ztts-help" value="?" data-l10n-id="ztts-help-deepgram" data-l10n-attrs="help"/>
+    </hbox>
+    <hbox align="center">
+      <button id="ztts-enable-deepgram"/>
+      <button id="ztts-test-deepgram" data-l10n-id="ztts-test-connection"/>
+      <description id="ztts-test-result-deepgram"/>
+    </hbox>
+  </groupbox>
+
   <!-- The operating system's own voices, synthesized by the plugin through a
        helper process on Windows and through `say` on macOS, so they are
        ordinary plugin voices (issues #12, #23). No fields: there is no key

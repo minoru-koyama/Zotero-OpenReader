@@ -22,6 +22,8 @@ pref('extensions.zotero.zotero-tts.cloudflare.accountId', '');
 pref('extensions.zotero.zotero-tts.cloudflare.apiToken', '');
 pref('extensions.zotero.zotero-tts.speechify.enabled', false);
 pref('extensions.zotero.zotero-tts.speechify.apiKey', '');
+pref('extensions.zotero.zotero-tts.deepgram.enabled', false);
+pref('extensions.zotero.zotero-tts.deepgram.apiKey', '');
 pref('extensions.zotero.zotero-tts.fish.enabled', false);
 pref('extensions.zotero.zotero-tts.fish.apiKey', '');
 pref('extensions.zotero.zotero-tts.fish.model', 's2.1-pro-free');

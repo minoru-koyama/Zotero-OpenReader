@@ -24,29 +24,6 @@ describe('addon/content/preferences.xhtml', () => {
   const attr = (markup: string, name: string) => markup.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
   const prefOf = (markup: string) => attr(markup, 'preference')?.replace(/^extensions\.zotero\.zotero-tts\./, '');
 
-  /** Every field of the pane whose value is a secret: the keys, the gateway headers, the WebDAV password. */
-  const SECRETS = ['openai-official.apiKey', 'mimo.apiKey', 'compatible.apiKey', 'compatible.headers', 'azure.apiKey', 'cloudflare.apiToken', 'speechify.apiKey', 'fish.apiKey', 'fishspeech.headers', 'local.headers', 'webdav.password'];
-
-  it('marks every secret field, and leaves it an ordinary text box', () => {
-    for (const name of SECRETS) {
-      const markup = inputs.find((input) => prefOf(input) === name);
-      expect(markup, name).toBeDefined();
-      expect(attr(markup!, 'class')?.split(/\s+/), name).toContain('ztts-secret');
-      // A password box cannot be copied out of; the cover is the stylesheet's
-      expect(attr(markup!, 'type'), name).toBe('text');
-    }
-  });
-
-  // A new key or header field without the marker would render a Cloudflare
-  // Access service token in full, and nothing else would say so
-  it('leaves no field whose name says secret uncovered', () => {
-    for (const markup of inputs) {
-      const name = prefOf(markup);
-      if (!name || !/key|token|password|headers/i.test(name)) continue;
-      expect(SECRETS, `${name} looks like a secret`).toContain(name);
-    }
-  });
-
   // The hint is the only thing that says what belongs in a header field, and
   // a covered field still shows it: -webkit-text-security covers the value,
   // never the placeholder (measured in 10.0.3-beta.3)

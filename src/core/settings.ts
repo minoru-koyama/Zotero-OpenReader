@@ -4,7 +4,7 @@ import type { ShortcutAction } from './shortcut-actions';
 import { VOLUME_DEFAULT, VOLUME_MAX, VOLUME_MIN } from './read-aloud-volume';
 import type { PrefetchSettings } from './engine/prefetch';
 
-export const PROVIDER_IDS: readonly ProviderId[] = ['openai-official', 'mimo', 'compatible', 'azure', 'cloudflare', 'speechify', 'fish', 'fishspeech', 'local', 'system'];
+export const PROVIDER_IDS: readonly ProviderId[] = ['openai-official', 'mimo', 'compatible', 'azure', 'cloudflare', 'speechify', 'deepgram', 'fish', 'fishspeech', 'local', 'system'];
 
 /** Zotero's own two cloud tiers, as its voices response keys them. */
 export type ZoteroTier = 'standard' | 'premium';
@@ -73,6 +73,12 @@ export interface Settings {
    * every voice the key lists is offered.
    */
   speechify: { enabled: boolean; apiKey: string };
+  /**
+   * Deepgram's Aura-2 voices (core/providers/deepgram.ts): one
+   * key, no address and no model — the voice id is the model, and every
+   * English Aura-2 voice the service lists is offered.
+   */
+  deepgram: { enabled: boolean; apiKey: string };
   /**
    * Fish Audio's cloud API (core/providers/fish.ts, issue #89): one key;
    * `model` is the model every request names (issue #182, which replaced
@@ -259,6 +265,7 @@ export const DEFAULTS: Settings = {
   azure: { enabled: false, apiKey: '', region: 'eastasia', voice: 'zh-CN-XiaoxiaoNeural' },
   cloudflare: { enabled: false, accountId: '', apiToken: '' },
   speechify: { enabled: false, apiKey: '' },
+  deepgram: { enabled: false, apiKey: '' },
   fish: { enabled: false, apiKey: '', model: DEFAULT_FISH_MODEL, voices: '', includeOfficial: true, includeOwn: false, includeManual: false },
   fishspeech: { enabled: false, baseURL: 'http://localhost:8080', headers: '' },
   local: { enabled: false, engine: 'kokoro', baseURL: 'http://localhost:8880', voice: 'af_bella', headers: '' },
@@ -394,6 +401,10 @@ export function loadSettings(prefs: PrefsBackend): Settings {
     speechify: {
       enabled: bool(prefs, 'speechify.enabled', DEFAULTS.speechify.enabled),
       apiKey: str(prefs, 'speechify.apiKey', DEFAULTS.speechify.apiKey),
+    },
+    deepgram: {
+      enabled: bool(prefs, 'deepgram.enabled', DEFAULTS.deepgram.enabled),
+      apiKey: str(prefs, 'deepgram.apiKey', DEFAULTS.deepgram.apiKey),
     },
     fish: {
       enabled: bool(prefs, 'fish.enabled', DEFAULTS.fish.enabled),
@@ -532,6 +543,7 @@ export function saveSettings(prefs: PrefsBackend, s: Settings): void {
   for (const [k, v] of Object.entries(s.azure)) prefs.set(PREF_PREFIX + 'azure.' + k, v);
   for (const [k, v] of Object.entries(s.cloudflare)) prefs.set(PREF_PREFIX + 'cloudflare.' + k, v);
   for (const [k, v] of Object.entries(s.speechify)) prefs.set(PREF_PREFIX + 'speechify.' + k, v);
+  for (const [k, v] of Object.entries(s.deepgram)) prefs.set(PREF_PREFIX + 'deepgram.' + k, v);
   for (const [k, v] of Object.entries(s.fish)) prefs.set(PREF_PREFIX + 'fish.' + k, v);
   for (const [k, v] of Object.entries(s.fishspeech)) prefs.set(PREF_PREFIX + 'fishspeech.' + k, v);
   for (const [k, v] of Object.entries(s.local)) prefs.set(PREF_PREFIX + 'local.' + k, v);

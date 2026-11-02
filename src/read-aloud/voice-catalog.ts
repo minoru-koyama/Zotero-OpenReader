@@ -4,7 +4,7 @@ import { isZoteroSwitch, zoteroSwitchTier } from '../core/settings';
 import { ZOTERO_TIERS } from './zotero-voices';
 
 const SEPARATOR = '::';
-const PROVIDERS: readonly ProviderId[] = ['openai-official', 'mimo', 'compatible', 'azure', 'cloudflare', 'speechify', 'fish', 'fishspeech', 'local', 'system'];
+const PROVIDERS: readonly ProviderId[] = ['openai-official', 'mimo', 'compatible', 'azure', 'cloudflare', 'speechify', 'deepgram', 'fish', 'fishspeech', 'local', 'system'];
 
 /**
  * The key the plugin's voices travel under in the voices response. Zotero's
@@ -56,6 +56,7 @@ const PROVIDER_NAMES: Record<Exclude<ProviderId, 'system'>, string> = {
   azure: 'Azure',
   cloudflare: 'Cloudflare',
   speechify: 'Speechify',
+  deepgram: 'Deepgram',
   fish: 'Fish Audio',
   fishspeech: 'Fish Speech',
   local: 'Local',

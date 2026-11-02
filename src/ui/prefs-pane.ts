@@ -407,8 +407,9 @@ export async function runConnectionCheck(prefs: PrefsBackend, id: SwitchId, deps
       // word marks to probe (macOS): one real `say`, caught here not mid-sentence
       // Cloudflare's first listed voice is a MeloTTS one, the cheapest probe it has;
       // Speechify's two characters go through its queue, never beside a reading tab's request;
+      // Deepgram's public voice list needs no key, so only the one `Hi` proves the account can spend;
       // Fish Audio's run on whichever model the free switch says, so a paid model with no credit fails here (issue #89)
-      probeSynthesis: isOpenAIApiSection(id) || id === 'system' || id === 'cloudflare' || id === 'speechify' || id === 'fish',
+      probeSynthesis: isOpenAIApiSection(id) || id === 'system' || id === 'cloudflare' || id === 'speechify' || id === 'deepgram' || id === 'fish',
     });
   } catch (e) {
     outcome = { ok: false, message: t('ztts-connection-failed', { detail: String(e) }) };

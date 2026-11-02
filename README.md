@@ -25,7 +25,7 @@ two more, each behind a switch of its own. It
 is built for the way its author reads —
 [why, and where it is going](docs/PHILOSOPHY.md).
 
-- 🗣️ **More voices in the Read Aloud player**, one entry per provider — Fish Audio (free, and the one to start with), Azure Speech, Cloudflare Workers AI, Speechify, a [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) or a [Fish Speech](https://github.com/fishaudio/fish-speech) server on your machine, OpenAI, Xiaomi MiMo or any OpenAI-compatible server — with Zotero's own Standard and Premium beside them, each behind a switch. [→ Providers](#providers)
+- 🗣️ **More voices in the Read Aloud player**, one entry per provider — Fish Audio (free, and the one to start with), Azure Speech, Cloudflare Workers AI, Speechify, Deepgram (English), a [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) or a [Fish Speech](https://github.com/fishaudio/fish-speech) server on your machine, OpenAI, Xiaomi MiMo or any OpenAI-compatible server — with Zotero's own Standard and Premium beside them, each behind a switch. [→ Providers](#providers)
 - 🎛️ **A player in three layouts** — a bottom bar, a top bar below the toolbar, or a floating panel. Change layout without interrupting playback. [→ Player](#player)
 - 🔖 **Resume where you stopped** — close a document, open it again later, press `Shift+Space`, and Read Aloud starts at the sentence you left off on. [→ Resume where you stopped](#resume-where-you-stopped)
 - 📄 **The whole sentence on screen** — while a PDF is read, a sentence that runs past the bottom of the window, onto the next page or into the next column is scrolled into view instead of left cut, and `Shift+Enter` brings it back the same way. [→ Reading](#reading)
@@ -72,6 +72,7 @@ is built for the way its author reads —
 | **Azure Speech** | Speech resource key + region · [tutorial](tutorials/azure-speech-free-tier.md) | Free tier: 500,000 characters a month | word; sentence for the voices named *MAI-Voice-2* |
 | **Cloudflare Workers AI** | Account ID + API token · [tutorial](tutorials/cloudflare-workers-ai.md) | 10,000 free Neurons a day: a few pages with an Aura voice, hours with MeloTTS | sentence |
 | **Speechify** | An API key from platform.speechify.ai · 36 languages, no Mandarin | Free: 50,000 characters a month, about fifteen pages; then $10 a month for a million | word |
+| **Deepgram** | An API key from console.deepgram.com · English Aura-2 voices | Billed per input character, prefetched text included | sentence |
 | **Fish Audio** | An API key from fish.audio · a choice of model · official voices, your own clones, and Model IDs, with a switch for each source · [tutorial](tutorials/fish-audio.md) | Free with its free model: no cap, no guarantee, until the date Fish Audio announced; the paid models at [Fish Audio's prices](https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits) | word |
 | **Kokoro-FastAPI** | A server on your machine or LAN · [tutorial](tutorials/kokoro-fastapi.md) | Free; CPU works, a GPU is faster | word |
 | **Fish Speech** | A [fish-speech](https://github.com/fishaudio/fish-speech) server on a 24 GB GPU, with voices cloned from your own recordings · [tutorial](tutorials/fish-speech-server.md) | Free | sentence |
@@ -85,10 +86,10 @@ The player's first dropdown lists every enabled provider that has voices
 right now, and Zotero's own **Zotero Standard** and **Zotero Premium**
 while their switches are on, sorted by name.
 
-- **The entries** are Azure, Cloudflare, Fish Audio, Fish Speech, Kokoro,
-  OpenAI, OpenAI Compatible, Speechify, System, Xiaomi MiMo, Zotero
-  Premium and Zotero Standard; the voices under them carry their own
-  names.
+- **The entries** are Azure, Cloudflare, Deepgram, Fish Audio, Fish
+  Speech, Kokoro, OpenAI, OpenAI Compatible, Speechify, System, Xiaomi
+  MiMo, Zotero Premium and Zotero Standard; the voices under them carry
+  their own names.
 - **Each entry remembers its own last voice** per language: Kokoro → Fish
   → Kokoro brings the Kokoro voice back.
 - **A provider with nothing to offer** — switched off, its server down,

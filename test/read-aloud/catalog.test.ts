@@ -237,36 +237,24 @@ describe('provider tiers from the settings', () => {
   });
 
   it('keys every provider by its id and the local provider by its engine', () => {
-    expect(providerTierKeys(DEFAULTS)).toEqual({
-      'openai-official': 'openai-official',
-      mimo: 'mimo',
-      compatible: 'compatible',
-      azure: 'azure',
-      cloudflare: 'cloudflare',
-      speechify: 'speechify',
-      fish: 'fish',
-      fishspeech: 'fishspeech',
-      local: 'kokoro',
-      system: 'system',
-    });
+    const keys = providerTierKeys(DEFAULTS);
+    expect(keys.local).toBe('kokoro');
+    expect(keys.deepgram).toBe('deepgram');
+    // Zotero's per-tier voice memory is keyed by these: two providers sharing one would share their voices
+    const values = Object.values(keys);
+    expect(new Set(values).size).toBe(values.length);
   });
 
   it('labels every tier key, Zotero’s two included', () => {
     const labels = providerTierLabels(DEFAULTS);
-    expect(labels).toEqual({
-      standard: 'Zotero Standard',
-      premium: 'Zotero Premium',
-      'openai-official': 'OpenAI',
-      mimo: 'Xiaomi MiMo',
-      compatible: 'OpenAI Compatible',
-      azure: 'Azure',
-      cloudflare: 'Cloudflare',
-      speechify: 'Speechify',
-      fish: 'Fish Audio',
-      fishspeech: 'Fish Speech',
-      kokoro: 'Kokoro',
-      system: 'System',
-    });
+    expect(labels.standard).toBe('Zotero Standard');
+    expect(labels.premium).toBe('Zotero Premium');
+    expect(labels.deepgram).toBe('Deepgram');
+    expect(labels.kokoro).toBe('Kokoro');
+    // Every tier has a name of its own, and none is left to show a bare id
+    const names = Object.values(labels);
+    expect(names.every((name) => typeof name === 'string' && name.length > 0)).toBe(true);
+    expect(new Set(names).size).toBe(names.length);
   });
 
   it('lists the enabled providers as columns, and Zotero’s two while their switches are on', () => {

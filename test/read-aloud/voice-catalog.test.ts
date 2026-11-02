@@ -32,6 +32,13 @@ describe('voice id encoding', () => {
     expect(decodeVoiceId('elevenlabs::rachel')).toBeNull();
     expect(decodeVoiceId('en-US-AvaMultilingualNeural')).toBeNull();
   });
+
+  // A document voice and a favourite are persisted as the encoded id: the
+  // allowlist that decodes them is separate from the settings' provider list
+  it('routes a saved Deepgram voice back to Deepgram', () => {
+    expect(decodeVoiceId('deepgram::aura-2-thalia-en')).toEqual({ provider: 'deepgram', voiceId: 'aura-2-thalia-en' });
+    expect(pluginVoiceTier('deepgram::aura-2-thalia-en')).toBe('deepgram');
+  });
 });
 
 // Issue #110: every provider is a tier of its own on the manager's voice

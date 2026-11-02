@@ -9,8 +9,9 @@
 /**
  * The text in pieces of at most `max` characters: each cut at the last
  * sentence end before the cap, else the last whitespace, else the cap
- * itself. The pieces concatenate back to the text, so `offset` is where
- * each begins in it.
+ * itself — never between the two halves of an astral character, which
+ * would hand each request a lone surrogate. The pieces concatenate back
+ * to the text, so `offset` is where each begins in it.
  */
 export function splitText(text: string, max: number): { text: string; offset: number }[] {
   const pieces: { text: string; offset: number }[] = [];
@@ -27,7 +28,12 @@ export function splitText(text: string, max: number): { text: string; offset: nu
         }
       }
     }
-    if (cut < 1) cut = max;
+    if (cut < 1) {
+      cut = max;
+      const high = text.charCodeAt(offset + cut - 1);
+      const low = text.charCodeAt(offset + cut);
+      if (cut > 1 && high >= 0xd800 && high <= 0xdbff && low >= 0xdc00 && low <= 0xdfff) cut--;
+    }
     pieces.push({ text: window.slice(0, cut), offset });
     offset += cut;
   }

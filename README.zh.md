@@ -1,4 +1,4 @@
-<!-- translated-from: README.md sha256:9294a5580c81 -->
+<!-- translated-from: README.md sha256:0a1201168f27 -->
 <p align="center"><img src="assets/icon.png" width="80" alt="Zotero-OpenReader 图标"></p>
 <h1 align="center">Zotero-OpenReader</h1>
 
@@ -22,7 +22,7 @@
 
 Zotero-OpenReader 为 Zotero 10 增加了语音和播放器：每个服务商都是播放器第一个下拉框里的一个条目，而 Zotero 自己的标准和高级是另外两个，各自都有自己的开关。它按作者自己的阅读习惯来做——[为什么这样做、往哪里去](docs/PHILOSOPHY.zh.md)。
 
-- 🗣️ **朗读播放器里更多语音**，每个服务商都是一个条目——Fish Audio（免费，最值得先试）、Azure Speech、Cloudflare Workers AI、Speechify、装在你机器上的 [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) 或 [Fish Speech](https://github.com/fishaudio/fish-speech) 服务器、OpenAI、Xiaomi MiMo 或任何 OpenAI 兼容服务器——旁边是 Zotero 自己的标准和高级，各自都有一个开关。[→ 服务商](#服务商)
+- 🗣️ **朗读播放器里更多语音**，每个服务商都是一个条目——Fish Audio（免费，最值得先试）、Azure Speech、Cloudflare Workers AI、Speechify、Deepgram（英文）、装在你机器上的 [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) 或 [Fish Speech](https://github.com/fishaudio/fish-speech) 服务器、OpenAI、Xiaomi MiMo 或任何 OpenAI 兼容服务器——旁边是 Zotero 自己的标准和高级，各自都有一个开关。[→ 服务商](#服务商)
 - 🎛️ **三种布局的播放器**——底部栏、工具栏下方的顶部栏，或悬浮面板。更改布局不会中断朗读。[→ 播放器](#播放器)
 - 🔖 **从上次停下的地方接着读**——关掉文档，过些天再打开，按 `Shift+Space`，朗读就从你上次停下的那一句开始。[→ 从上次停下的地方接着读](#从上次停下的地方接着读)
 - 📄 **整句都在屏幕内**——读 PDF 时，一句话如果超出窗口底部、延伸到下一页或下一栏，会被滚动到可见范围内，而不是被截断在外，`Shift+Enter` 也能用同样的方式把它带回来。[→ 朗读](#朗读)
@@ -63,6 +63,7 @@ Zotero-OpenReader 为 Zotero 10 增加了语音和播放器：每个服务商都
 | **Azure Speech** | 语音资源的密钥和区域 · [教程](tutorials/azure-speech-free-tier.zh.md) | 免费额度：每月 50 万字符 | 逐词；名字里带 *MAI-Voice-2* 的语音逐句 |
 | **Cloudflare Workers AI** | 账户 ID 和 API 令牌 · [教程](tutorials/cloudflare-workers-ai.zh.md) | 每天 10,000 个免费 Neurons：Aura 语音够读几页，MeloTTS 够读几个小时 | 逐句 |
 | **Speechify** | 一个 platform.speechify.ai 的 API 密钥 · 36 种语言，没有普通话 | 免费：每月 50,000 字符，约十几页；之后每月 10 美元 100 万字符 | 逐词 |
+| **Deepgram** | 一个 console.deepgram.com 的 API 密钥 · 仅英文 Aura-2 语音 | 按输入字符计费，预取的文本也算 | 逐句 |
 | **Fish Audio** | 一个 fish.audio 的 API 密钥 · 可选模型 · 官方语音、你自己克隆的语音，以及 Model ID，每种来源都有独立开关 · [教程](tutorials/fish-audio.zh.md) | 免费模型不花钱、不限量、不保证速度，免费到 Fish Audio 公布的日期为止；付费模型按 [Fish Audio 的价格](https://docs.fish.audio/developer-guide/models-pricing/pricing-and-rate-limits)收费 | 逐词 |
 | **Kokoro-FastAPI** | 一台跑在本机或局域网里的服务器 · [教程](tutorials/kokoro-fastapi.zh.md) | 免费；CPU 也能跑，有 GPU 更快 | 逐词 |
 | **Fish Speech** | 一台跑在 24 GB 显卡上的 [fish-speech](https://github.com/fishaudio/fish-speech) 服务器，语音由你自己的录音克隆而来 · [教程](tutorials/fish-speech-server.zh.md) | 免费 | 逐句 |
@@ -74,7 +75,7 @@ Zotero-OpenReader 为 Zotero 10 增加了语音和播放器：每个服务商都
 
 播放器第一个下拉框列出眼下有语音的每一个已启用服务商，以及开关开着时 Zotero 自己的 **Zotero 标准**和 **Zotero 高级**，按名称排序。
 
-- **这些条目**是 Azure、Cloudflare、Fish Audio、Fish Speech、Kokoro、OpenAI、OpenAI Compatible、Speechify、系统、Xiaomi MiMo、Zotero 高级和 Zotero 标准；条目下面的语音各自带着自己的名字。
+- **这些条目**是 Azure、Cloudflare、Deepgram、Fish Audio、Fish Speech、Kokoro、OpenAI、OpenAI Compatible、Speechify、系统、Xiaomi MiMo、Zotero 高级和 Zotero 标准；条目下面的语音各自带着自己的名字。
 - **每个条目按语言各记住自己最后一个语音**：Kokoro → Fish → Kokoro，用的还是原来那个 Kokoro 语音。
 - **没有语音可提供的服务商**——关着、服务器没起来，或者只提供收藏的语音时自己一个都没收藏——在它又有语音之前都不会列出来。
 - **没有登录 Zotero 账户时**，其他服务商照常可用；只有 Zotero 标准和 Zotero 高级不会列出，和 Zotero 自己一样。

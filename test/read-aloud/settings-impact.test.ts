@@ -60,6 +60,21 @@ describe('settings changes during reading', () => {
     expect(affectedReading(current, { 'fish.enabled': true, 'fish.apiKey': 'new' }, sessions)).toEqual(['Loading']);
     expect(affectedReading(current, { 'azure.enabled': false }, sessions)).toEqual(['Paper', 'Loading']);
   });
+  // A paused tab of a Deepgram voice answers to Deepgram's own
+  // settings, and to nothing typed for another provider
+  it('protects a paused Deepgram reading from its own settings alone', () => {
+    const values = { ...flattenSettings(DEFAULTS), 'deepgram.enabled': true };
+    const paused = {
+      title: 'Deepgram paper',
+      _internalReader: { _readAloudManager: { active: true, selectedVoiceID: 'deepgram::aura-2-thalia-en', _voice: { id: 'deepgram::aura-2-thalia-en' }, _allVoices: [] } },
+    };
+    const impact = createReadingImpact({ values: () => values, readers: () => [paused], pending: () => [], title: (r) => r.title });
+    expect(impact.affectedTabs({ 'deepgram.apiKey': 'changed' })).toEqual(['Deepgram paper']);
+    expect(impact.affectedTabs({ 'deepgram.enabled': false })).toEqual(['Deepgram paper']);
+    expect(impact.affectedTabs({ 'speechify.apiKey': 'changed' })).toEqual([]);
+    expect(impact.affectedTabs({ 'deepgram.enabled': true })).toEqual([]);
+  });
+
   it('hands out the affected sessions with their readers, for the guard to close exactly those', () => {
     const values = flattenSettings(DEFAULTS);
     const azure = { title: 'Azure paper', _internalReader: { _readAloudManager: { active: true, selectedVoiceID: 'azure::ava', _voice: { id: 'azure::ava' }, _allVoices: [] } } };
